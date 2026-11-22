@@ -1,6 +1,7 @@
 {
   "version": 2,
   "framework": null,
+  "outputDirectory": "public",
   "buildCommand": "echo 'Assets pre-compiled'",
   "functions": {
     "api/index.php": {

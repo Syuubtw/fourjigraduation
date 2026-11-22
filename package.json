@@ -1,9 +1,6 @@
 {
     "$schema": "https://www.schemastore.org/package.json",
     "private": true,
-    "engines": {
-        "node": "20.x"
-    },
     "scripts": {
         "build": "echo 'Assets pre-compiled'",
         "build:local": "vite build",

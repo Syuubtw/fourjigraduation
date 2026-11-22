@@ -135,7 +135,7 @@
                     </div>
                     <div class="flex items-center gap-2 mt-2">
                         @if($gallery->isSubmitted())
-                            <form method="POST" action="{{ route('admin.galleries.reopen', $gallery) }}">
+                            <form method="POST" action="{{ route('admin.galleries.reopen', $gallery) }}" onsubmit="return confirm('PENTING: Apakah Anda yakin ingin MEMBUKA KEMBALI kunci galeri ini? Klien akan dapat mengubah dan mengganti pilihan foto lagi.');">
                                 @csrf
                                 <button type="submit" class="text-xs text-blue-600 hover:text-blue-800 font-medium underline">
                                     Buka Kunci (Reopen)
@@ -149,7 +149,7 @@
                                 </button>
                             </form>
                         @elseif($gallery->isCompleted())
-                            <form method="POST" action="{{ route('admin.galleries.reopen', $gallery) }}">
+                            <form method="POST" action="{{ route('admin.galleries.reopen', $gallery) }}" onsubmit="return confirm('PENTING: Apakah Anda yakin ingin membuka kembali galeri yang sudah selesai ini?');">
                                 @csrf
                                 <button type="submit" class="text-xs text-blue-600 hover:text-blue-800 font-medium underline">
                                     Buka Kembali

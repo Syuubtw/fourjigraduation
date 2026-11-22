@@ -116,16 +116,40 @@
             </div>
         </div>
 
-        <!-- Quota Status Banner -->
-        <div x-show="selectedCount >= maxSelect" x-transition
-             class="mt-4 p-3 bg-zinc-900 text-white rounded-xl text-xs flex items-center justify-between shadow-xs">
-            <div class="flex items-center space-x-2">
-                <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Kuota foto Anda telah tercapai (<strong x-text="maxSelect"></strong> foto). Silakan tinjau kembali atau langsung kunci pilihan.</span>
+        <!-- Locked Gallery Banner (Read-Only) -->
+        @if(!$gallery->isOpen())
+            <div class="mt-4 p-4 bg-zinc-900 text-white rounded-2xl flex items-center justify-between shadow-xs">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-emerald-400 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-white">
+                            Pilihan Foto Telah Dikunci (Mode Pratinjau Saja)
+                        </div>
+                        <div class="text-[11px] text-zinc-400 mt-0.5">
+                            Pilihan foto Anda telah dikirim ke tim editor Fourji Graduation{{ $gallery->submitted_at ? ' pada ' . $gallery->submitted_at->format('d M Y, H:i') : '' }}. Pilihan foto dan catatan retouching sudah bersifat final dan tidak dapat diubah kembali.
+                        </div>
+                    </div>
+                </div>
+                <span class="hidden sm:inline-flex px-3 py-1 bg-zinc-800 text-emerald-400 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-zinc-700">
+                    Final & Terkunci
+                </span>
             </div>
-        </div>
+        @else
+            <!-- Quota Status Banner (When Open) -->
+            <div x-show="selectedCount >= maxSelect" x-transition
+                 class="mt-4 p-3 bg-zinc-900 text-white rounded-xl text-xs flex items-center justify-between shadow-xs">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Kuota foto Anda telah tercapai (<strong x-text="maxSelect"></strong> foto). Silakan tinjau kembali atau langsung kunci pilihan.</span>
+                </div>
+            </div>
+        @endif
     </section>
 
     <!-- PHOTO GALLERY GRID -->

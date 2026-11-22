@@ -28,37 +28,69 @@ class GoogleDriveService
      */
     protected function initializeClient(): void
     {
-        $oauthTokenPath = config('services.google.oauth_token_path');
-        $serviceAccountPath = config('services.google.service_account_json');
+        // Priority 0: Environment Variable JSON (for Vercel / Cloud serverless)
+        $envToken = env('GOOGLE_OAUTH_TOKEN_JSON');
+        if (!empty($envToken)) {
+            try {
+                $tokenData = json_decode($envToken, true);
+                if (!empty($tokenData)) {
+                    $this->setupOAuthClientWithToken($tokenData);
+                    return;
+                }
+            } catch (Exception $e) {
+                Log::warning("Failed to initialize Google Drive via GOOGLE_OAUTH_TOKEN_JSON: " . $e->getMessage());
+            }
+        }
 
-        // Priority 1: Direct Google Account Login (OAuth 2.0)
+        // Priority 1: Persistent Cache / Database Token
+        try {
+            $cachedToken = \Illuminate\Support\Facades\Cache::get('google_oauth_token');
+            if (!empty($cachedToken) && is_array($cachedToken)) {
+                $this->setupOAuthClientWithToken($cachedToken);
+                return;
+            }
+        } catch (\Throwable $e) {
+            // DB/Cache may not be migrated or reachable yet during bootstrap
+        }
+
+        // Priority 2: Direct Google Account Login (OAuth 2.0 file)
+        $oauthTokenPath = config('services.google.oauth_token_path');
         if (!empty($oauthTokenPath) && file_exists($oauthTokenPath)) {
             try {
                 $tokenData = json_decode(file_get_contents($oauthTokenPath), true);
                 if (!empty($tokenData)) {
-                    $client = $this->createBaseOAuthClient();
-                    $client->setAccessToken($tokenData);
-
-                    // Auto-refresh expired token if refresh token exists
-                    if ($client->isAccessTokenExpired()) {
-                        if ($client->getRefreshToken()) {
-                            $newToken = $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-                            file_put_contents($oauthTokenPath, json_encode(array_merge($tokenData, $newToken)));
-                        }
-                    }
-
-                    $this->googleClient = $client;
-                    $this->driveService = new GoogleDrive($client);
-                    $this->connectionType = 'oauth';
-                    $this->connectedEmail = $tokenData['email'] ?? 'Akun Google Pribadi';
+                    $this->setupOAuthClientWithToken($tokenData);
                     return;
                 }
             } catch (Exception $e) {
-                Log::warning("Failed to initialize Google Drive via OAuth token: " . $e->getMessage());
+                Log::warning("Failed to initialize Google Drive via OAuth token file: " . $e->getMessage());
             }
         }
 
-        // Priority 2: Google Service Account
+        // Priority 3: Google Service Account from ENV
+        $envSa = env('GOOGLE_SERVICE_ACCOUNT_JSON');
+        if (!empty($envSa)) {
+            try {
+                $serviceAccountData = json_decode($envSa, true);
+                if (!empty($serviceAccountData) && isset($serviceAccountData['client_email'])) {
+                    $client = new GoogleClient();
+                    $client->setAuthConfig($serviceAccountData);
+                    $client->addScope([GoogleDrive::DRIVE_READONLY]);
+                    $client->setApplicationName('Fourji Graduation Photo Proofing');
+
+                    $this->googleClient = $client;
+                    $this->driveService = new GoogleDrive($client);
+                    $this->connectionType = 'service_account';
+                    $this->connectedEmail = $serviceAccountData['client_email'];
+                    return;
+                }
+            } catch (Exception $e) {
+                Log::warning("Failed to initialize Google Drive via GOOGLE_SERVICE_ACCOUNT_JSON: " . $e->getMessage());
+            }
+        }
+
+        // Priority 4: Google Service Account File
+        $serviceAccountPath = config('services.google.service_account_json');
         if (!empty($serviceAccountPath) && file_exists($serviceAccountPath)) {
             try {
                 $serviceAccountData = json_decode(file_get_contents($serviceAccountPath), true);
@@ -78,6 +110,41 @@ class GoogleDriveService
                 Log::warning("Failed to initialize Google Drive via Service Account: " . $e->getMessage());
             }
         }
+    }
+
+    /**
+     * Configure Google Client with OAuth token data and handle token auto-refresh.
+     */
+    protected function setupOAuthClientWithToken(array $tokenData): void
+    {
+        $client = $this->createBaseOAuthClient();
+        $client->setAccessToken($tokenData);
+
+        // Auto-refresh expired token if refresh token exists
+        if ($client->isAccessTokenExpired() && $client->getRefreshToken()) {
+            try {
+                $newToken = $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+                $tokenData = array_merge($tokenData, $newToken);
+
+                $oauthTokenPath = config('services.google.oauth_token_path');
+                if (!empty($oauthTokenPath)) {
+                    @file_put_contents($oauthTokenPath, json_encode($tokenData));
+                }
+
+                try {
+                    \Illuminate\Support\Facades\Cache::forever('google_oauth_token', $tokenData);
+                } catch (\Throwable $t) {
+                    // Cache table may not be ready
+                }
+            } catch (Exception $e) {
+                Log::warning("Failed to refresh Google OAuth token: " . $e->getMessage());
+            }
+        }
+
+        $this->googleClient = $client;
+        $this->driveService = new GoogleDrive($client);
+        $this->connectionType = 'oauth';
+        $this->connectedEmail = $tokenData['email'] ?? 'Akun Google Pribadi';
     }
 
     /**
@@ -283,6 +350,12 @@ class GoogleDriveService
         $oauthTokenPath = config('services.google.oauth_token_path');
         if (!empty($oauthTokenPath) && file_exists($oauthTokenPath)) {
             File::delete($oauthTokenPath);
+        }
+
+        try {
+            \Illuminate\Support\Facades\Cache::forget('google_oauth_token');
+        } catch (\Throwable $e) {
+            // Ignore cache error
         }
 
         $this->driveService = null;

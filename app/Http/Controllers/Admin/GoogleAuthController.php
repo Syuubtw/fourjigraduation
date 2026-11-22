@@ -113,6 +113,12 @@ class GoogleAuthController extends Controller
             File::ensureDirectoryExists(dirname($tokenPath));
             File::put($tokenPath, json_encode($token, JSON_PRETTY_PRINT));
 
+            try {
+                \Illuminate\Support\Facades\Cache::forever('google_oauth_token', $token);
+            } catch (\Throwable $t) {
+                // Ignore cache error if table not ready
+            }
+
             return redirect()
                 ->route('admin.galleries.index')
                 ->with('success', "Akun Google Drive asli ({$token['email']}) berhasil terhubung!");

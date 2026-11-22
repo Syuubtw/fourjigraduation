@@ -85,3 +85,55 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Cloud Deployment Setup Helpers (Vercel / Serverless)
+| Protected strictly by APP_KEY
+|--------------------------------------------------------------------------
+*/
+Route::get('/system/migrate', function (\Illuminate\Http\Request $request) {
+    $providedKey = $request->query('key');
+    $appKey = config('app.key');
+
+    if (empty($providedKey) || empty($appKey) || $providedKey !== $appKey) {
+        abort(403, 'Akses ditolak. Secret key tidak valid.');
+    }
+
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response('<pre style="background:#09090b;color:#10b981;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">DATABASE MIGRATION SUCCESSFUL:\n\n' . e($output) . '</pre>', 200);
+    } catch (\Throwable $e) {
+        return response('<pre style="background:#09090b;color:#ef4444;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">DATABASE MIGRATION FAILED:\n\n' . e($e->getMessage()) . '</pre>', 500);
+    }
+})->name('system.migrate');
+
+Route::get('/system/init-admin', function (\Illuminate\Http\Request $request) {
+    $providedKey = $request->query('key');
+    $appKey = config('app.key');
+
+    if (empty($providedKey) || empty($appKey) || $providedKey !== $appKey) {
+        abort(403, 'Akses ditolak. Secret key tidak valid.');
+    }
+
+    $email = $request->query('email', 'admin@fourji.com');
+    $password = $request->query('password', 'password');
+    $name = $request->query('name', 'Fourji Admin');
+
+    try {
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => $email],
+            [
+                'name' => $name,
+                'password' => \Illuminate\Support\Facades\Hash::make($password),
+                'email_verified_at' => now(),
+            ]
+        );
+
+        return response('<pre style="background:#09090b;color:#10b981;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN ACCOUNT READY:\n\nEmail: ' . e($user->email) . '\nPassword: ' . e($password) . '\nStatus: ' . ($user->wasRecentlyCreated ? 'Created' : 'Already exists') . '</pre>', 200);
+    } catch (\Throwable $e) {
+        return response('<pre style="background:#09090b;color:#ef4444;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN INITIALIZATION FAILED:\n\n' . e($e->getMessage()) . '</pre>', 500);
+    }
+})->name('system.init_admin');
+

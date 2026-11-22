@@ -1,0 +1,10 @@
+.env
+.env.*
+tests/
+.git/
+.github/
+node_modules/
+storage/*.key
+storage/app/google/*.json
+storage/app/public/thumbnails/*
+storage/logs/*.log

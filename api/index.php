@@ -4,7 +4,7 @@
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 ini_set('display_errors', '0');
 
-// Prepare serverless writable storage paths in /tmp
+// Prepare serverless writable storage & bootstrap paths in /tmp
 $dirs = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
@@ -20,6 +20,21 @@ foreach ($dirs as $dir) {
         @mkdir($dir, 0777, true);
     }
 }
+
+// Redirect all Laravel cache files to writable /tmp
+putenv('APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php');
+putenv('APP_EVENTS_CACHE=/tmp/bootstrap/cache/events.php');
+putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
+putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
+putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
+putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
+
+$_ENV['APP_CONFIG_CACHE'] = '/tmp/bootstrap/cache/config.php';
+$_ENV['APP_EVENTS_CACHE'] = '/tmp/bootstrap/cache/events.php';
+$_ENV['APP_PACKAGES_CACHE'] = '/tmp/bootstrap/cache/packages.php';
+$_ENV['APP_ROUTES_CACHE'] = '/tmp/bootstrap/cache/routes.php';
+$_ENV['APP_SERVICES_CACHE'] = '/tmp/bootstrap/cache/services.php';
+$_ENV['VIEW_COMPILED_PATH'] = '/tmp/storage/framework/views';
 
 $_ENV['VERCEL'] = '1';
 $_SERVER['VERCEL'] = '1';

@@ -42,15 +42,19 @@ class GoogleDriveService
             }
         }
 
-        // Priority 1: Persistent Cache / Database Token
+        // Priority 1: Persistent Database Token in TiDB Cloud
         try {
-            $cachedToken = \Illuminate\Support\Facades\Cache::get('google_oauth_token');
-            if (!empty($cachedToken) && is_array($cachedToken)) {
-                $this->setupOAuthClientWithToken($cachedToken);
-                return;
+            $row = \Illuminate\Support\Facades\DB::table('cache')->where('key', 'like', '%google_oauth_token%')->first();
+            if ($row && !empty($row->value)) {
+                $raw = @unserialize($row->value);
+                $tokenData = is_array($raw) ? $raw : json_decode($row->value, true);
+                if (!empty($tokenData) && is_array($tokenData)) {
+                    $this->setupOAuthClientWithToken($tokenData);
+                    return;
+                }
             }
         } catch (\Throwable $e) {
-            // DB/Cache may not be migrated or reachable yet during bootstrap
+            // DB may not be reachable yet
         }
 
         // Priority 2: Direct Google Account Login (OAuth 2.0 file)
@@ -132,9 +136,12 @@ class GoogleDriveService
                 }
 
                 try {
-                    \Illuminate\Support\Facades\Cache::forever('google_oauth_token', $tokenData);
+                    \Illuminate\Support\Facades\DB::table('cache')->updateOrInsert(
+                        ['key' => 'fourji_cache_google_oauth_token'],
+                        ['value' => serialize($tokenData), 'expiration' => 2147483647]
+                    );
                 } catch (\Throwable $t) {
-                    // Cache table may not be ready
+                    // Ignore DB error
                 }
             } catch (Exception $e) {
                 Log::warning("Failed to refresh Google OAuth token: " . $e->getMessage());
@@ -361,9 +368,9 @@ class GoogleDriveService
         }
 
         try {
-            \Illuminate\Support\Facades\Cache::forget('google_oauth_token');
+            \Illuminate\Support\Facades\DB::table('cache')->where('key', 'like', '%google_oauth_token%')->delete();
         } catch (\Throwable $e) {
-            // Ignore cache error
+            // Ignore DB error
         }
 
         $this->driveService = null;

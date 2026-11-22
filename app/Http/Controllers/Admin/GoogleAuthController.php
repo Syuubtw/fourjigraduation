@@ -114,7 +114,10 @@ class GoogleAuthController extends Controller
             File::put($tokenPath, json_encode($token, JSON_PRETTY_PRINT));
 
             try {
-                \Illuminate\Support\Facades\Cache::forever('google_oauth_token', $token);
+                \Illuminate\Support\Facades\DB::table('cache')->updateOrInsert(
+                    ['key' => 'fourji_cache_google_oauth_token'],
+                    ['value' => serialize($token), 'expiration' => 2147483647]
+                );
             } catch (\Throwable $t) {
                 // Ignore cache error if table not ready
             }

@@ -1,5 +1,9 @@
 <?php
 
+// Suppress deprecation notices from polluting output stream in production
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+ini_set('display_errors', '0');
+
 // Prepare serverless writable storage paths in /tmp
 $dirs = [
     '/tmp/storage/framework/views',

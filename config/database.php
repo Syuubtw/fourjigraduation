@@ -60,8 +60,8 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA', file_exists('/etc/pki/tls/certs/ca-bundle.crt') ? '/etc/pki/tls/certs/ca-bundle.crt' : (file_exists('/etc/ssl/certs/ca-certificates.crt') ? '/etc/ssl/certs/ca-certificates.crt' : (file_exists('C:/laragon/etc/ssl/cacert.pem') ? 'C:/laragon/etc/ssl/cacert.pem' : null))),
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                (defined('Pdo\Mysql::ATTR_SSL_CA') ? \Pdo\Mysql::ATTR_SSL_CA : 1007) => env('MYSQL_ATTR_SSL_CA', file_exists('/etc/pki/tls/certs/ca-bundle.crt') ? '/etc/pki/tls/certs/ca-bundle.crt' : (file_exists('/etc/ssl/certs/ca-certificates.crt') ? '/etc/ssl/certs/ca-certificates.crt' : (file_exists('C:/laragon/etc/ssl/cacert.pem') ? 'C:/laragon/etc/ssl/cacert.pem' : null))),
+                (defined('Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT') ? \Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT : 1014) => false,
             ], fn ($val) => !is_null($val)) : [],
         ],
 
@@ -81,8 +81,8 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA', file_exists('/etc/pki/tls/certs/ca-bundle.crt') ? '/etc/pki/tls/certs/ca-bundle.crt' : (file_exists('/etc/ssl/certs/ca-certificates.crt') ? '/etc/ssl/certs/ca-certificates.crt' : (file_exists('C:/laragon/etc/ssl/cacert.pem') ? 'C:/laragon/etc/ssl/cacert.pem' : null))),
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                (defined('Pdo\Mysql::ATTR_SSL_CA') ? \Pdo\Mysql::ATTR_SSL_CA : 1007) => env('MYSQL_ATTR_SSL_CA', file_exists('/etc/pki/tls/certs/ca-bundle.crt') ? '/etc/pki/tls/certs/ca-bundle.crt' : (file_exists('/etc/ssl/certs/ca-certificates.crt') ? '/etc/ssl/certs/ca-certificates.crt' : (file_exists('C:/laragon/etc/ssl/cacert.pem') ? 'C:/laragon/etc/ssl/cacert.pem' : null))),
+                (defined('Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT') ? \Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT : 1014) => false,
             ], fn ($val) => !is_null($val)) : [],
         ],
 

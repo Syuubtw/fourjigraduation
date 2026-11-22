@@ -95,8 +95,9 @@ require __DIR__.'/auth.php';
 Route::get('/system/migrate', function (\Illuminate\Http\Request $request) {
     $providedKey = $request->query('key');
     $appKey = config('app.key');
+    $normalizedKey = $providedKey ? str_replace(' ', '+', $providedKey) : '';
 
-    if (empty($providedKey) || empty($appKey) || $providedKey !== $appKey) {
+    if (empty($providedKey) || empty($appKey) || ($providedKey !== $appKey && $normalizedKey !== $appKey)) {
         abort(403, 'Akses ditolak. Secret key tidak valid.');
     }
 
@@ -112,8 +113,9 @@ Route::get('/system/migrate', function (\Illuminate\Http\Request $request) {
 Route::get('/system/init-admin', function (\Illuminate\Http\Request $request) {
     $providedKey = $request->query('key');
     $appKey = config('app.key');
+    $normalizedKey = $providedKey ? str_replace(' ', '+', $providedKey) : '';
 
-    if (empty($providedKey) || empty($appKey) || $providedKey !== $appKey) {
+    if (empty($providedKey) || empty($appKey) || ($providedKey !== $appKey && $normalizedKey !== $appKey)) {
         abort(403, 'Akses ditolak. Secret key tidak valid.');
     }
 

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 | Public Landing Route
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -84,7 +85,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -110,16 +111,15 @@ Route::get('/system/migrate', function (\Illuminate\Http\Request $request) {
 })->name('system.migrate');
 
 Route::get('/system/init-admin', function (\Illuminate\Http\Request $request) {
-    $providedKey = $request->query('key');
-    $appKey = config('app.key');
+    $providedPin = $request->query('pin');
 
-    if (empty($providedKey) || empty($appKey) || $providedKey !== $appKey) {
-        abort(403, 'Akses ditolak. Secret key tidak valid.');
+    if ($providedPin !== 'fourji2026') {
+        abort(403, 'Akses ditolak. Gunakan pin=fourji2026');
     }
 
-    $email = $request->query('email', 'admin@fourji.com');
-    $password = $request->query('password', 'password');
-    $name = $request->query('name', 'Fourji Admin');
+    $email = $request->query('email', 'admin@fourji.id');
+    $password = $request->query('password', 'password123');
+    $name = $request->query('name', 'Admin Fourji');
 
     try {
         $user = \App\Models\User::updateOrCreate(
@@ -136,4 +136,3 @@ Route::get('/system/init-admin', function (\Illuminate\Http\Request $request) {
         return response('<pre style="background:#09090b;color:#ef4444;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN INITIALIZATION FAILED:\n\n' . e($e->getMessage()) . '</pre>', 500);
     }
 })->name('system.init_admin');
-

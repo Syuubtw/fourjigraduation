@@ -117,22 +117,35 @@ Route::get('/system/init-admin', function (\Illuminate\Http\Request $request) {
         abort(403, 'Akses ditolak. Gunakan pin=fourji2026');
     }
 
-    $email = $request->query('email', 'admin@fourji.id');
-    $password = $request->query('password', 'password123');
-    $name = $request->query('name', 'Admin Fourji');
+    $email = 'admin@fourji.id';
+    $password = 'password123';
 
-    try {
-        $user = \App\Models\User::updateOrCreate(
-            ['email' => $email],
-            [
-                'name' => $name,
-                'password' => $password,
-                'email_verified_at' => now(),
-            ]
-        );
+    // Buat atau update user secara bersih
+    \Illuminate\Support\Facades\DB::table('users')->updateOrInsert(
+        ['email' => $email],
+        [
+            'name' => 'Admin Fourji',
+            'password' => \Illuminate\Support\Facades\Hash::make($password),
+            'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]
+    );
 
-        return response('<pre style="background:#09090b;color:#10b981;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN ACCOUNT READY:\n\nEmail: ' . e($user->email) . '\nPassword: ' . e($password) . '\nDatabase: ' . config('database.connections.mysql.database') . '\nHost: ' . config('database.connections.mysql.host') . '\nStatus: Password successfully synchronized without double-hash!</pre>', 200);
-    } catch (\Throwable $e) {
-        return response('<pre style="background:#09090b;color:#ef4444;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN INITIALIZATION FAILED:\n\n' . e($e->getMessage()) . '</pre>', 500);
-    }
+    // Otomatis login-kan ke session!
+    $user = \App\Models\User::where('email', $email)->first();
+    \Illuminate\Support\Facades\Auth::login($user);
+
+    return redirect('/admin/galleries')->with('status', 'Berhasil login otomatis sebagai Admin!');
 })->name('system.init_admin');
+
+Route::get('/system/whoami', function () {
+    $users = \Illuminate\Support\Facades\DB::table('users')->select('id', 'name', 'email')->get();
+    return response()->json([
+        'logged_in' => \Illuminate\Support\Facades\Auth::check(),
+        'current_user' => \Illuminate\Support\Facades\Auth::user(),
+        'users_in_database' => $users,
+        'session_driver' => config('session.driver'),
+        'database_name' => config('database.connections.mysql.database'),
+    ]);
+});

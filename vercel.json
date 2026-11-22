@@ -1,19 +1,13 @@
 {
   "version": 2,
   "framework": null,
-  "builds": [
-    {
-      "src": "api/index.php",
-      "use": "vercel-php@0.7.3",
-      "config": {
-        "maxDuration": 30
-      }
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
+  "outputDirectory": "public",
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.7.1",
+      "maxDuration": 30
     }
-  ],
+  },
   "routes": [
     {
       "src": "/build/(.*)",

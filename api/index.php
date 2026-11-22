@@ -1,7 +1,7 @@
 <?php
 
-// Redirect all Laravel cache/storage writes to /tmp (Vercel read-only FS)
-$storageDirs = [
+// Prepare serverless writable storage paths in /tmp
+$dirs = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
     '/tmp/storage/framework/sessions',
@@ -11,48 +11,15 @@ $storageDirs = [
     '/tmp/bootstrap/cache',
 ];
 
-foreach ($storageDirs as $dir) {
+foreach ($dirs as $dir) {
     if (!is_dir($dir)) {
         @mkdir($dir, 0777, true);
     }
 }
 
-// Set VERCEL env flag
 $_ENV['VERCEL'] = '1';
 $_SERVER['VERCEL'] = '1';
 putenv('VERCEL=1');
 
-// Explicit cache paths (picked up by Laravel's app()->configPath() etc.)
-putenv('APP_CONFIG_CACHE=/tmp/config.php');
-putenv('APP_EVENTS_CACHE=/tmp/events.php');
-putenv('APP_PACKAGES_CACHE=/tmp/packages.php');
-putenv('APP_ROUTES_CACHE=/tmp/routes.php');
-putenv('APP_SERVICES_CACHE=/tmp/services.php');
-putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
-
-// Serverless-safe defaults
-if (!getenv('LOG_CHANNEL') || getenv('LOG_CHANNEL') === 'stack') {
-    putenv('LOG_CHANNEL=stderr');
-    $_ENV['LOG_CHANNEL'] = 'stderr';
-}
-if (!getenv('CACHE_STORE') || getenv('CACHE_STORE') === 'database') {
-    putenv('CACHE_STORE=array');
-    $_ENV['CACHE_STORE'] = 'array';
-}
-if (!getenv('SESSION_DRIVER') || getenv('SESSION_DRIVER') === 'database') {
-    putenv('SESSION_DRIVER=cookie');
-    $_ENV['SESSION_DRIVER'] = 'cookie';
-}
-
-try {
-    require __DIR__ . '/../public/index.php';
-} catch (\Throwable $e) {
-    http_response_code(500);
-    header('Content-Type: text/html');
-    echo '<div style="background:#09090b;color:#f87171;padding:24px;font-family:monospace;border-radius:12px;margin:20px;border:1px solid #ef4444;">';
-    echo '<h2 style="color:#ef4444;margin-top:0;">Server Error: ' . htmlspecialchars($e->getMessage()) . '</h2>';
-    echo '<p><strong>File:</strong> ' . htmlspecialchars($e->getFile()) . ':' . $e->getLine() . '</p>';
-    echo '<pre style="color:#d4d4d8;background:#18181b;padding:16px;border-radius:8px;overflow-x:auto;">' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
-    echo '</div>';
-    exit(1);
-}
+// Delegate directly to Laravel public/index.php
+require __DIR__ . '/../public/index.php';

@@ -122,7 +122,7 @@ Route::get('/system/init-admin', function (\Illuminate\Http\Request $request) {
     $name = $request->query('name', 'Fourji Admin');
 
     try {
-        $user = \App\Models\User::firstOrCreate(
+        $user = \App\Models\User::updateOrCreate(
             ['email' => $email],
             [
                 'name' => $name,
@@ -131,7 +131,7 @@ Route::get('/system/init-admin', function (\Illuminate\Http\Request $request) {
             ]
         );
 
-        return response('<pre style="background:#09090b;color:#10b981;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN ACCOUNT READY:\n\nEmail: ' . e($user->email) . '\nPassword: ' . e($password) . '\nStatus: ' . ($user->wasRecentlyCreated ? 'Created' : 'Already exists') . '</pre>', 200);
+        return response('<pre style="background:#09090b;color:#10b981;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN ACCOUNT READY:\n\nEmail: ' . e($user->email) . '\nPassword: ' . e($password) . '\nDatabase: ' . config('database.connections.mysql.database') . '\nHost: ' . config('database.connections.mysql.host') . '\nStatus: Password successfully synchronized!</pre>', 200);
     } catch (\Throwable $e) {
         return response('<pre style="background:#09090b;color:#ef4444;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN INITIALIZATION FAILED:\n\n' . e($e->getMessage()) . '</pre>', 500);
     }

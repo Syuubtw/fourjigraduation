@@ -155,7 +155,13 @@ class GoogleDriveService
         $client = new GoogleClient();
         $client->setClientId(config('services.google.client_id'));
         $client->setClientSecret(config('services.google.client_secret'));
-        $client->setRedirectUri(config('services.google.redirect_uri'));
+        $redirectUri = config('services.google.redirect_uri');
+        if (empty($redirectUri) || str_contains($redirectUri, 'localhost')) {
+            if (isset($_SERVER['HTTP_HOST']) && !str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
+                $redirectUri = 'https://' . $_SERVER['HTTP_HOST'] . '/admin/google/callback';
+            }
+        }
+        $client->setRedirectUri($redirectUri);
         $client->setScopes([
             'https://www.googleapis.com/auth/drive.readonly',
             'https://www.googleapis.com/auth/userinfo.email',

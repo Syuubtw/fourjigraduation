@@ -1,0 +1,25 @@
+@import 'glightbox/dist/css/glightbox.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fourji Graduation Watermark Overlay */
+.fourji-watermark-text {
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: 0.25em;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.3);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Prevent image dragging */
+.no-drag {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    user-select: none;
+}

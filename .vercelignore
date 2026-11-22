@@ -4,6 +4,7 @@ tests/
 .git/
 .github/
 node_modules/
+vendor/
 storage/*.key
 storage/app/google/*.json
 storage/app/public/thumbnails/*

@@ -1,10 +1,6 @@
 <?php
 
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
-
-// Ensure writable /tmp storage paths exist for serverless environment
+// Redirect all Laravel cache/storage writes to /tmp (Vercel read-only FS)
 $storageDirs = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache/data',
@@ -12,6 +8,7 @@ $storageDirs = [
     '/tmp/storage/logs',
     '/tmp/storage/app/public/thumbnails',
     '/tmp/storage/app/google',
+    '/tmp/bootstrap/cache',
 ];
 
 foreach ($storageDirs as $dir) {
@@ -20,14 +17,20 @@ foreach ($storageDirs as $dir) {
     }
 }
 
+// Set VERCEL env flag
 $_ENV['VERCEL'] = '1';
 $_SERVER['VERCEL'] = '1';
 putenv('VERCEL=1');
 
-// Redirect compiled views to /tmp
+// Explicit cache paths (picked up by Laravel's app()->configPath() etc.)
+putenv('APP_CONFIG_CACHE=/tmp/config.php');
+putenv('APP_EVENTS_CACHE=/tmp/events.php');
+putenv('APP_PACKAGES_CACHE=/tmp/packages.php');
+putenv('APP_ROUTES_CACHE=/tmp/routes.php');
+putenv('APP_SERVICES_CACHE=/tmp/services.php');
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 
-// Force safe serverless defaults in case ENV vars are missing
+// Serverless-safe defaults
 if (!getenv('LOG_CHANNEL') || getenv('LOG_CHANNEL') === 'stack') {
     putenv('LOG_CHANNEL=stderr');
     $_ENV['LOG_CHANNEL'] = 'stderr';

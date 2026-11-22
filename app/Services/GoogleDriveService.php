@@ -156,7 +156,9 @@ class GoogleDriveService
         $client->setClientId(config('services.google.client_id'));
         $client->setClientSecret(config('services.google.client_secret'));
         $redirectUri = config('services.google.redirect_uri');
-        if (empty($redirectUri) || str_contains($redirectUri, 'localhost')) {
+        if (isset($_SERVER['VERCEL']) || isset($_ENV['VERCEL']) || getenv('VERCEL')) {
+            $redirectUri = 'https://fourjigraduation-umber.vercel.app/admin/google/callback';
+        } elseif (empty($redirectUri) || str_contains($redirectUri, 'localhost')) {
             if (isset($_SERVER['HTTP_HOST']) && !str_contains($_SERVER['HTTP_HOST'], 'localhost')) {
                 $redirectUri = 'https://' . $_SERVER['HTTP_HOST'] . '/admin/google/callback';
             }

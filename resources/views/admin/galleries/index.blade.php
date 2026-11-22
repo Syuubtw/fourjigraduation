@@ -349,22 +349,6 @@
                             </tbody>
                         </table>
                     </div>
-                                                Kelola
-                                            </a>
-                                            <a href="{{ route('client.gallery.show', $gallery->slug) }}"
-                                               target="_blank"
-                                               class="inline-flex items-center px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-medium rounded-lg transition"
-                                               title="Buka tampilan klien">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                </svg>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
 
                     @if($galleries->hasPages())
                         <div class="p-4 border-t border-zinc-100 bg-zinc-50/30">

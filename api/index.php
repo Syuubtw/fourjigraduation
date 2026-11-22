@@ -2,7 +2,9 @@
 
 // Suppress deprecation notices from polluting output stream in production
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
-ini_set('display_errors', '0');
+ini_set('display_errors', '1');
+putenv('APP_DEBUG=true');
+$_ENV['APP_DEBUG'] = 'true';
 
 // Prepare serverless writable storage & bootstrap paths in /tmp
 $dirs = [

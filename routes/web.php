@@ -54,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('galleries/live-stats', [GalleryController::class, 'liveStats'])->name('galleries.live_stats');
         Route::resource('galleries', GalleryController::class);
         Route::post('galleries/{gallery}/sync', [GalleryController::class, 'sync'])->name('galleries.sync');
         Route::post('galleries/{gallery}/reopen', [GalleryController::class, 'reopen'])->name('galleries.reopen');

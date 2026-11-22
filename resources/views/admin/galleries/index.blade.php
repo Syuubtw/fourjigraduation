@@ -2,11 +2,18 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-semibold tracking-tight text-zinc-900">
-                    Client Photo Proofing
-                </h1>
+                <div class="flex items-center space-x-3">
+                    <h1 class="text-2xl font-semibold tracking-tight text-zinc-900">
+                        Client Photo Proofing
+                    </h1>
+                    <!-- Real-time Live Status Pulse -->
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5"></span>
+                        Live Auto-Update
+                    </span>
+                </div>
                 <p class="text-sm text-zinc-500 mt-0.5">
-                    Kelola sesi galeri wisuda, sinkronisasi Google Drive, dan ekspor nama file ke Adobe Lightroom.
+                    Kelola sesi galeri wisuda, sinkronisasi Google Drive, dan ekspor nama file ke Adobe Lightroom secara real-time.
                 </p>
             </div>
             <div>
@@ -214,8 +221,31 @@
                 </form>
             </div>
 
-            <!-- Galleries Table -->
-            <div class="bg-white border border-zinc-200/80 rounded-2xl shadow-xs overflow-hidden">
+            <!-- Galleries Table with Live Polling -->
+            <div class="bg-white border border-zinc-200/80 rounded-2xl shadow-xs overflow-hidden"
+                 x-data="galleryLiveMonitor({
+                     endpoint: '{{ route('admin.galleries.live_stats') }}',
+                     galleries: {{ json_encode($galleries->mapWithKeys(fn($g) => [$g->id => ['status' => $g->status, 'selected_count' => $g->selected_photos_count, 'max_select' => $g->max_select, 'client_name' => $g->client_name]])) }}
+                 })">
+
+                <!-- Toast Notification for Live Client Submissions -->
+                <div x-show="toastMessage"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-2"
+                     class="p-3 bg-emerald-600 text-white text-xs font-semibold flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span x-text="toastMessage"></span>
+                    </div>
+                    <button type="button" @click="toastMessage = ''" class="text-emerald-200 hover:text-white">✕</button>
+                </div>
+
                 @if($galleries->count() > 0)
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -230,7 +260,8 @@
                             </thead>
                             <tbody class="divide-y divide-zinc-100 text-sm">
                                 @foreach($galleries as $gallery)
-                                    <tr class="hover:bg-zinc-50/60 transition group">
+                                    <tr class="hover:bg-zinc-50/60 transition group"
+                                        :class="changedMap[{{ $gallery->id }}] ? 'bg-amber-50/80' : ''">
                                         <!-- Client Info -->
                                         <td class="py-4 px-6">
                                             <div class="font-medium text-zinc-900 group-hover:text-black">
@@ -258,46 +289,66 @@
                                             </div>
                                         </td>
 
-                                        <!-- Quota Progress -->
+                                        <!-- Quota Progress (Live) -->
                                         <td class="py-4 px-6">
                                             <div class="flex items-center space-x-2">
-                                                <span class="font-semibold text-zinc-900">{{ $gallery->selected_photos_count }}</span>
+                                                <span class="font-semibold text-zinc-900"
+                                                      x-text="galleries[{{ $gallery->id }}]?.selected_count ?? {{ $gallery->selected_photos_count }}">
+                                                    {{ $gallery->selected_photos_count }}
+                                                </span>
                                                 <span class="text-zinc-400">/</span>
                                                 <span class="text-zinc-600">{{ $gallery->max_select }}</span>
                                             </div>
                                             <div class="w-28 bg-zinc-100 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                                                @php
-                                                    $pct = $gallery->max_select > 0 ? min(100, round(($gallery->selected_photos_count / $gallery->max_select) * 100)) : 0;
-                                                @endphp
-                                                <div class="bg-zinc-900 h-1.5 rounded-full transition-all" style="width: {{ $pct }}%"></div>
+                                                <div class="bg-zinc-900 h-1.5 rounded-full transition-all duration-500"
+                                                     :style="'width: ' + getPct({{ $gallery->id }}) + '%'"></div>
                                             </div>
                                         </td>
 
-                                        <!-- Status Badge -->
+                                        <!-- Status Badge (Live) -->
                                         <td class="py-4 px-6">
-                                            @if($gallery->status === 'draft')
+                                            <template x-if="getStatus({{ $gallery->id }}) === 'draft'">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-700">
                                                     Draft
                                                 </span>
-                                            @elseif($gallery->status === 'open')
+                                            </template>
+                                            <template x-if="getStatus({{ $gallery->id }}) === 'open'">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200/60">
                                                     Open
                                                 </span>
-                                            @elseif($gallery->status === 'submitted')
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200/80">
+                                            </template>
+                                            <template x-if="getStatus({{ $gallery->id }}) === 'submitted'">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200/80 font-bold animate-pulse">
                                                     Submitted
                                                 </span>
-                                            @elseif($gallery->status === 'completed')
+                                            </template>
+                                            <template x-if="getStatus({{ $gallery->id }}) === 'completed'">
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-900 text-white">
                                                     Completed
                                                 </span>
-                                            @endif
+                                            </template>
                                         </td>
 
                                         <!-- Actions -->
                                         <td class="py-4 px-6 text-right space-x-2 whitespace-nowrap">
                                             <a href="{{ route('admin.galleries.show', $gallery) }}"
                                                class="inline-flex items-center px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium rounded-lg transition">
+                                                Kelola
+                                            </a>
+                                            <a href="{{ route('client.gallery.show', $gallery->slug) }}"
+                                               target="_blank"
+                                               class="inline-flex items-center px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-medium rounded-lg transition"
+                                               title="Buka tampilan klien">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                                                 Kelola
                                             </a>
                                             <a href="{{ route('client.gallery.show', $gallery->slug) }}"
@@ -341,4 +392,60 @@
 
         </div>
     </div>
+
+    <!-- Live Auto-Update Script (Every 5s) -->
+    <script>
+        function galleryLiveMonitor(config) {
+            return {
+                endpoint: config.endpoint,
+                galleries: config.galleries || {},
+                changedMap: {},
+                toastMessage: '',
+                pollTimer: null,
+
+                init() {
+                    this.pollTimer = setInterval(() => {
+                        this.fetchLiveStats();
+                    }, 5000);
+                },
+
+                getStatus(id) {
+                    return this.galleries[id]?.status || 'draft';
+                },
+
+                getPct(id) {
+                    const g = this.galleries[id];
+                    if (!g || !g.max_select) return 0;
+                    return Math.min(100, Math.round(((g.selected_count || 0) / g.max_select) * 100));
+                },
+
+                async fetchLiveStats() {
+                    try {
+                        const res = await fetch(this.endpoint, {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (!res.ok) return;
+                        const data = await res.json();
+
+                        data.forEach(item => {
+                            const existing = this.galleries[item.id];
+                            if (existing) {
+                                // If status just transitioned to submitted, notify with highlight toast
+                                if (existing.status !== 'submitted' && item.status === 'submitted') {
+                                    this.toastMessage = `Klien "${item.client_name}" baru saja mengunci ${item.selected_count} foto pilihan!`;
+                                    this.changedMap[item.id] = true;
+                                    setTimeout(() => { this.changedMap[item.id] = false; }, 8000);
+                                }
+                                existing.status = item.status;
+                                existing.selected_count = item.selected_count;
+                                existing.max_select = item.max_select;
+                            }
+                        });
+                    } catch (e) {
+                        // Silent background retry
+                    }
+                }
+            };
+        }
+    </script>
 </x-app-layout>

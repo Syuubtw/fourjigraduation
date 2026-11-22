@@ -49,6 +49,27 @@ class GalleryController extends Controller
     }
 
     /**
+     * Get live JSON stats for real-time dashboard auto-refresh.
+     */
+    public function liveStats(): JsonResponse
+    {
+        $galleries = Gallery::query()
+            ->withCount(['photos', 'selectedPhotos'])
+            ->get(['id', 'client_name', 'status', 'max_select', 'submitted_at'])
+            ->map(function ($g) {
+                return [
+                    'id'             => $g->id,
+                    'status'         => $g->status,
+                    'selected_count' => $g->selected_photos_count,
+                    'max_select'     => $g->max_select,
+                    'submitted_at'   => $g->submitted_at ? $g->submitted_at->format('d M Y, H:i') : null,
+                ];
+            });
+
+        return response()->json($galleries);
+    }
+
+    /**
      * Show the form for creating a new gallery.
      */
     public function create(): View

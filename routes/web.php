@@ -126,12 +126,12 @@ Route::get('/system/init-admin', function (\Illuminate\Http\Request $request) {
             ['email' => $email],
             [
                 'name' => $name,
-                'password' => \Illuminate\Support\Facades\Hash::make($password),
+                'password' => $password,
                 'email_verified_at' => now(),
             ]
         );
 
-        return response('<pre style="background:#09090b;color:#10b981;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN ACCOUNT READY:\n\nEmail: ' . e($user->email) . '\nPassword: ' . e($password) . '\nDatabase: ' . config('database.connections.mysql.database') . '\nHost: ' . config('database.connections.mysql.host') . '\nStatus: Password successfully synchronized!</pre>', 200);
+        return response('<pre style="background:#09090b;color:#10b981;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN ACCOUNT READY:\n\nEmail: ' . e($user->email) . '\nPassword: ' . e($password) . '\nDatabase: ' . config('database.connections.mysql.database') . '\nHost: ' . config('database.connections.mysql.host') . '\nStatus: Password successfully synchronized without double-hash!</pre>', 200);
     } catch (\Throwable $e) {
         return response('<pre style="background:#09090b;color:#ef4444;padding:24px;border-radius:12px;font-family:monospace;font-size:14px;line-height:1.6;">ADMIN INITIALIZATION FAILED:\n\n' . e($e->getMessage()) . '</pre>', 500);
     }

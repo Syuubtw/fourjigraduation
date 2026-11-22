@@ -42,5 +42,11 @@ $_ENV['VERCEL'] = '1';
 $_SERVER['VERCEL'] = '1';
 putenv('VERCEL=1');
 
+// Ensure cookie session and array cache on serverless
+putenv('SESSION_DRIVER=cookie');
+$_ENV['SESSION_DRIVER'] = 'cookie';
+putenv('CACHE_STORE=array');
+$_ENV['CACHE_STORE'] = 'array';
+
 // Delegate directly to Laravel public/index.php
 require __DIR__ . '/../public/index.php';

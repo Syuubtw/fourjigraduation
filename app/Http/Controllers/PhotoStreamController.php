@@ -16,11 +16,24 @@ class PhotoStreamController extends Controller
      */
     public function stream(Request $request, Photo $photo, GoogleDriveService $driveService): Response
     {
-        $type = $request->query('type', 'thumb');
+        // 1. Strict parameter whitelisting (Prevents path traversal attacks)
+        $type = in_array($request->query('type'), ['thumb', 'preview', 'full'], true)
+            ? $request->query('type')
+            : 'thumb';
+
+        // 2. Authorization check: If gallery has a PIN, verify session has unlocked it (or user is admin)
+        $gallery = $photo->gallery;
+        if ($gallery && $gallery->isPinProtected() && !auth()->check()) {
+            $sessionKey = 'unlocked_gallery_' . $gallery->id;
+            if (!$request->session()->has($sessionKey)) {
+                abort(403, 'Akses foto ditolak. Galeri ini dilindungi oleh PIN.');
+            }
+        }
+
         $cacheDir = storage_path('app/public/thumbnails');
         $cacheFile = "{$cacheDir}/photo_{$photo->id}_{$type}.jpg";
 
-        // 1. Return from local cache if already downloaded
+        // 3. Return from local cache if already downloaded
         if (File::exists($cacheFile) && File::size($cacheFile) > 0) {
             return response()->file($cacheFile, [
                 'Content-Type'  => 'image/jpeg',

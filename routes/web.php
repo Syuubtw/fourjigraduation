@@ -21,7 +21,9 @@ Route::get('/', function () {
 | Photo Stream / Thumbnail Proxy Route (High-Speed Local Cache)
 |--------------------------------------------------------------------------
 */
-Route::get('/photos/{photo}/stream', [PhotoStreamController::class, 'stream'])->name('photo.stream');
+Route::get('/photos/{photo}/stream', [PhotoStreamController::class, 'stream'])
+    ->middleware('throttle:120,1')
+    ->name('photo.stream');
 
 /*
 |--------------------------------------------------------------------------
@@ -29,17 +31,25 @@ Route::get('/photos/{photo}/stream', [PhotoStreamController::class, 'stream'])->
 |--------------------------------------------------------------------------
 */
 Route::prefix('g/{slug}')->group(function () {
-    // PIN Verification Routes
+    // PIN Verification Routes (Protected from Brute Force)
     Route::get('/pin', [ProofingController::class, 'showPin'])->name('client.pin.show');
-    Route::post('/pin', [ProofingController::class, 'verifyPin'])->name('client.pin.verify');
+    Route::post('/pin', [ProofingController::class, 'verifyPin'])
+        ->middleware('throttle:10,1')
+        ->name('client.pin.verify');
     Route::get('/success', [ProofingController::class, 'success'])->name('client.gallery.success');
 
     // PIN-Protected Gallery Routes
     Route::middleware('gallery.pin')->group(function () {
         Route::get('/', [ProofingController::class, 'show'])->name('client.gallery.show');
-        Route::post('/photos/{photo}/toggle', [ProofingController::class, 'togglePhoto'])->name('client.gallery.toggle');
-        Route::post('/photos/{photo}/note', [ProofingController::class, 'updateNote'])->name('client.gallery.note');
-        Route::post('/submit', [ProofingController::class, 'submit'])->name('client.gallery.submit');
+        Route::post('/photos/{photo}/toggle', [ProofingController::class, 'togglePhoto'])
+            ->middleware('throttle:60,1')
+            ->name('client.gallery.toggle');
+        Route::post('/photos/{photo}/note', [ProofingController::class, 'updateNote'])
+            ->middleware('throttle:30,1')
+            ->name('client.gallery.note');
+        Route::post('/submit', [ProofingController::class, 'submit'])
+            ->middleware('throttle:10,1')
+            ->name('client.gallery.submit');
     });
 });
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="referrer" content="no-referrer">
-    <title>{{ $gallery->client_name }} — Photo Proofing Fourji Graduation</title>
+    <title>{{ $gallery->client_name }} — Photo Proofing Fourji Picture</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -27,7 +27,7 @@
                 <a href="{{ route('client.gallery.show', ['slug' => $gallery->slug]) }}" class="flex flex-col">
                     <img src="{{ asset('images/logo-dark.png') }}" alt="Fourji Picture | 4everlove" class="h-5 sm:h-6 w-auto object-contain">
                     <span class="text-[9px] text-zinc-400 font-semibold tracking-wider uppercase mt-1">
-                        Graduation Client Proofing
+                        Client Photo Proofing
                     </span>
                 </a>
             </div>
@@ -89,7 +89,7 @@
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-[#E4E4E7] pb-6">
             <div>
                 <span class="text-[11px] font-bold tracking-widest uppercase text-zinc-400">
-                    Sesi Foto Wisuda
+                    Sesi Foto
                 </span>
                 <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#09090b] mt-1">
                     {{ $gallery->client_name }}
@@ -130,7 +130,7 @@
                             Pilihan Foto Telah Dikunci (Mode Pratinjau Saja)
                         </div>
                         <div class="text-[11px] text-zinc-400 mt-0.5">
-                            Pilihan foto Anda telah dikirim ke tim editor Fourji Graduation{{ $gallery->submitted_at ? ' pada ' . $gallery->submitted_at->format('d M Y, H:i') : '' }}. Pilihan foto dan catatan retouching sudah bersifat final dan tidak dapat diubah kembali.
+                            Pilihan foto Anda telah dikirim ke tim editor Fourji Picture{{ $gallery->submitted_at ? ' pada ' . $gallery->submitted_at->format('d M Y, H:i') : '' }}. Pilihan foto dan catatan retouching sudah bersifat final dan tidak dapat diubah kembali.
                         </div>
                     </div>
                 </div>
@@ -172,7 +172,7 @@
                                data-gallery="client-gallery"
                                data-type="image"
                                data-title="{{ $photo->filename }}"
-                               data-description="{{ $gallery->client_name }} — Fourji Graduation">
+                               data-description="{{ $gallery->client_name }} — Fourji Picture">
                                 <img src="{{ $photo->thumbnail_url }}"
                                      alt="{{ $photo->filename }}"
                                      loading="lazy"
@@ -376,7 +376,7 @@
             <h3 class="text-lg font-bold text-[#09090b]">Kunci Pilihan Foto Anda?</h3>
             <p class="text-xs text-zinc-500 mt-2 leading-relaxed">
                 Anda telah memilih <strong class="text-zinc-900" x-text="selectedCount"></strong> dari <span x-text="maxSelect"></span> foto kuota.
-                Setelah dikunci, pilihan foto akan langsung dikirim ke tim editor Fourji Graduation dan tidak dapat diubah lagi.
+                Setelah dikunci, pilihan foto akan langsung dikirim ke tim editor Fourji Picture dan tidak dapat diubah lagi.
             </p>
 
             <div class="mt-6 flex items-center justify-center space-x-3">

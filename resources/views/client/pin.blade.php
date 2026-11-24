@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Akses Galeri — Fourji Graduation</title>
+    <title>Akses Galeri — Fourji Picture</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -31,7 +31,7 @@
                 {{ $gallery->client_name }}
             </h1>
             <p class="text-xs text-zinc-500 mt-2 leading-relaxed">
-                Galeri wisuda ini diproteksi. Masukkan PIN akses yang telah dikirimkan oleh tim Fourji Graduation.
+                Galeri foto ini diproteksi. Masukkan PIN akses yang telah dikirimkan oleh tim Fourji Picture.
             </p>
 
             <form method="POST" action="{{ route('client.pin.verify', ['slug' => $gallery->slug]) }}" class="mt-8 space-y-5">
@@ -62,7 +62,7 @@
 
     <!-- Footer -->
     <footer class="py-6 text-center text-xs text-zinc-400">
-        &copy; {{ date('Y') }} Fourji Graduation. All rights reserved.
+        &copy; {{ date('Y') }} Fourji Picture. All rights reserved.
     </footer>
 
 </body>

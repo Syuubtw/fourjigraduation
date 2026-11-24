@@ -8,10 +8,10 @@
             </a>
             <div>
                 <h1 class="text-2xl font-semibold tracking-tight text-zinc-900">
-                    Tambah Galeri Wisuda Baru
+                    Tambah Galeri Baru
                 </h1>
                 <p class="text-sm text-zinc-500 mt-0.5">
-                    Konfigurasi sesi proofing foto wisuda dan sambungkan ke Google Drive folder.
+                    Konfigurasi sesi proofing foto dan sambungkan ke folder Google Drive.
                 </p>
             </div>
         </div>
@@ -27,13 +27,13 @@
                     <!-- Client Name -->
                     <div>
                         <label for="client_name" class="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-2">
-                            Nama Klien / Wisudawan <span class="text-red-500">*</span>
+                            Nama Klien <span class="text-red-500">*</span>
                         </label>
                         <input type="text"
                                name="client_name"
                                id="client_name"
                                value="{{ old('client_name') }}"
-                               placeholder="Contoh: Amanda Clarissa, S.Ked"
+                               placeholder="Contoh: Amanda Clarissa"
                                required
                                class="w-full px-4 py-2.5 bg-zinc-50/70 border @error('client_name') border-red-400 @else border-zinc-200 @enderror rounded-xl text-sm text-zinc-900 placeholder-zinc-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 transition">
                         @error('client_name')
@@ -55,7 +55,7 @@
                                        name="slug"
                                        id="slug"
                                        value="{{ old('slug') }}"
-                                       placeholder="amanda-wisuda-ui"
+                                       placeholder="amanda-session"
                                        class="w-full pl-10 pr-4 py-2.5 bg-zinc-50/70 border @error('slug') border-red-400 @else border-zinc-200 @enderror rounded-xl text-sm font-mono text-zinc-900 placeholder-zinc-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 transition">
                             </div>
                             <p class="mt-1.5 text-[11px] text-zinc-400">Kosongkan jika ingin dibuat otomatis dari nama klien.</p>

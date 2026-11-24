@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pilihan Foto Diterima — Fourji Graduation</title>
+    <title>Pilihan Foto Diterima — Fourji Picture</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -32,7 +32,7 @@
             </h1>
 
             <p class="text-sm text-zinc-600 mt-3 leading-relaxed">
-                Kami telah mengamankan <strong class="text-zinc-900">{{ $selectedCount }} foto wisuda</strong> pilihan Anda beserta seluruh catatan retouching. Galeri ini telah dikunci untuk proses editing.
+                Kami telah mengamankan <strong class="text-zinc-900">{{ $selectedCount }} foto</strong> pilihan Anda beserta seluruh catatan retouching. Galeri ini telah dikunci untuk proses editing.
             </p>
 
             <div class="mt-8 p-4 bg-zinc-50 border border-zinc-200/80 rounded-2xl text-xs text-zinc-600 text-left space-y-2">
@@ -61,7 +61,7 @@
 
     <!-- Footer -->
     <footer class="py-6 text-center text-xs text-zinc-400">
-        &copy; {{ date('Y') }} Fourji Graduation. All rights reserved.
+        &copy; {{ date('Y') }} Fourji Picture. All rights reserved.
     </footer>
 
 </body>

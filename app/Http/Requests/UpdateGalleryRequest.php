@@ -40,7 +40,7 @@ class UpdateGalleryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'client_name.required'      => 'Nama klien / wisudawan wajib diisi.',
+            'client_name.required'      => 'Nama klien wajib diisi.',
             'slug.required'             => 'Slug URL wajib diisi.',
             'slug.unique'               => 'Slug URL ini sudah digunakan untuk sesi galeri lain.',
             'slug.regex'                => 'Format slug hanya boleh berupa huruf kecil, angka, dan tanda hubung (-).',

@@ -13,7 +13,7 @@
                     </span>
                 </div>
                 <p class="text-sm text-zinc-500 mt-0.5">
-                    Kelola sesi galeri wisuda, sinkronisasi Google Drive, dan ekspor nama file ke Adobe Lightroom secara real-time.
+                    Kelola sesi galeri foto, sinkronisasi Google Drive, dan ekspor nama file ke Adobe Lightroom secara real-time.
                 </p>
             </div>
             <div>
@@ -190,7 +190,7 @@
                         <input type="text"
                                name="search"
                                value="{{ request('search') }}"
-                               placeholder="Cari nama wisudawan atau slug..."
+                               placeholder="Cari nama klien atau slug..."
                                class="w-full pl-10 pr-4 py-2 bg-zinc-50/70 border border-zinc-200 rounded-xl text-sm text-zinc-900 placeholder-zinc-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900 transition">
                     </div>
 
@@ -251,7 +251,7 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="border-b border-zinc-100 bg-zinc-50/50 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
-                                    <th class="py-3.5 px-6">Klien & Sesi Wisuda</th>
+                                    <th class="py-3.5 px-6">Klien & Sesi Galeri</th>
                                     <th class="py-3.5 px-6">Folder GDrive</th>
                                     <th class="py-3.5 px-6">Pilihan / Kuota</th>
                                     <th class="py-3.5 px-6">Status</th>
@@ -364,7 +364,7 @@
                         </div>
                         <h3 class="text-base font-medium text-zinc-900">Belum ada sesi galeri</h3>
                         <p class="text-sm text-zinc-500 max-w-sm mx-auto mt-1 mb-6">
-                            Mulai dengan membuat sesi galeri wisuda baru dan hubungkan dengan Google Drive.
+                            Mulai dengan membuat sesi galeri baru dan hubungkan dengan Google Drive.
                         </p>
                         <a href="{{ route('admin.galleries.create') }}"
                            class="inline-flex items-center px-4 py-2.5 bg-zinc-950 text-white text-xs font-semibold uppercase tracking-wider rounded-lg shadow-sm hover:bg-zinc-800 transition">

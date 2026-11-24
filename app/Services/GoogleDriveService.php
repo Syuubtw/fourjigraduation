@@ -80,7 +80,7 @@ class GoogleDriveService
                     $client = new GoogleClient();
                     $client->setAuthConfig($serviceAccountData);
                     $client->addScope([GoogleDrive::DRIVE_READONLY]);
-                    $client->setApplicationName('Fourji Graduation Photo Proofing');
+                    $client->setApplicationName('Fourji Picture Photo Proofing');
 
                     $this->googleClient = $client;
                     $this->driveService = new GoogleDrive($client);
@@ -102,7 +102,7 @@ class GoogleDriveService
                     $client = new GoogleClient();
                     $client->setAuthConfig($serviceAccountPath);
                     $client->addScope([GoogleDrive::DRIVE_READONLY]);
-                    $client->setApplicationName('Fourji Graduation Photo Proofing');
+                    $client->setApplicationName('Fourji Picture Photo Proofing');
 
                     $this->googleClient = $client;
                     $this->driveService = new GoogleDrive($client);
@@ -178,7 +178,7 @@ class GoogleDriveService
         $client->setAccessType('offline');
         $client->setPrompt('select_account consent');
         $client->setIncludeGrantedScopes(true);
-        $client->setApplicationName('Fourji Graduation Photo Proofing');
+        $client->setApplicationName('Fourji Picture Photo Proofing');
 
         return $client;
     }

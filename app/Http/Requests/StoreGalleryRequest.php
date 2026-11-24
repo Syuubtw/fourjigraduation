@@ -38,7 +38,7 @@ class StoreGalleryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'client_name.required'      => 'Nama klien / wisudawan wajib diisi.',
+            'client_name.required'      => 'Nama klien wajib diisi.',
             'slug.unique'               => 'Slug URL ini sudah digunakan untuk sesi galeri lain.',
             'slug.regex'                => 'Format slug hanya boleh berupa huruf kecil, angka, dan tanda hubung (-).',
             'gdrive_folder_id.required' => 'Google Drive Folder ID wajib diisi.',

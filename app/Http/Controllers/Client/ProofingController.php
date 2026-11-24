@@ -48,7 +48,7 @@ class ProofingController extends Controller
 
         if (trim($request->input('pin')) !== trim($gallery->pin)) {
             return back()->withErrors([
-                'pin' => 'PIN akses salah. Silakan periksa kembali PIN yang diberikan oleh Fourji Graduation.',
+                'pin' => 'PIN akses salah. Silakan periksa kembali PIN yang diberikan oleh Fourji Picture.',
             ])->withInput();
         }
 
@@ -97,7 +97,7 @@ class ProofingController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => match ($gallery->status) {
-                        'submitted', 'completed' => 'Galeri ini sudah dikunci/selesai. Hubungi admin Fourji Graduation jika perlu mengubah pilihan.',
+                        'submitted', 'completed' => 'Galeri ini sudah dikunci/selesai. Hubungi admin Fourji Picture jika perlu mengubah pilihan.',
                         'draft' => 'Galeri ini belum dibuka untuk pemilihan foto.',
                         default => 'Pilihan foto sedang ditutup.',
                     },

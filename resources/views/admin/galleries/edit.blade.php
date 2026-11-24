@@ -28,7 +28,7 @@
                     <!-- Client Name -->
                     <div>
                         <label for="client_name" class="block text-xs font-semibold text-zinc-700 uppercase tracking-wider mb-2">
-                            Nama Klien / Wisudawan <span class="text-red-500">*</span>
+                            Nama Klien <span class="text-red-500">*</span>
                         </label>
                         <input type="text"
                                name="client_name"

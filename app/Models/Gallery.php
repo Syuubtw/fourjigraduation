@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -12,6 +13,7 @@ class Gallery extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'client_name',
         'slug',
         'pin',
@@ -45,6 +47,14 @@ class Gallery extends Model
                 $gallery->slug = $uniqueSlug;
             }
         });
+    }
+
+    /**
+     * Relationship: Owner user of this gallery.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**

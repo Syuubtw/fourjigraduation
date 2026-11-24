@@ -20,6 +20,7 @@ class GalleryController extends Controller
     public function index(Request $request, GoogleDriveService $driveService): View
     {
         $query = Gallery::query()
+            ->where('user_id', auth()->id())
             ->withCount(['photos', 'selectedPhotos'])
             ->latest();
 
@@ -54,6 +55,7 @@ class GalleryController extends Controller
     public function liveStats(): JsonResponse
     {
         $galleries = Gallery::query()
+            ->where('user_id', auth()->id())
             ->withCount(['photos', 'selectedPhotos'])
             ->get(['id', 'client_name', 'status', 'max_select', 'submitted_at'])
             ->map(function ($g) {
@@ -90,6 +92,8 @@ class GalleryController extends Controller
             $validated['gdrive_folder_id'] = GoogleDriveService::cleanFolderId($validated['gdrive_folder_id']);
         }
 
+        $validated['user_id'] = auth()->id();
+
         $gallery = Gallery::create($validated);
 
         if ($autoSync) {
@@ -115,6 +119,8 @@ class GalleryController extends Controller
      */
     public function show(Gallery $gallery): View
     {
+        $this->authorizeGallery($gallery);
+
         $gallery->load(['photos']);
 
         $totalPhotos = $gallery->photos->count();
@@ -145,6 +151,7 @@ class GalleryController extends Controller
      */
     public function edit(Gallery $gallery): View
     {
+        $this->authorizeGallery($gallery);
         return view('admin.galleries.edit', compact('gallery'));
     }
 
@@ -153,6 +160,8 @@ class GalleryController extends Controller
      */
     public function update(UpdateGalleryRequest $request, Gallery $gallery): RedirectResponse
     {
+        $this->authorizeGallery($gallery);
+
         $validated = $request->validated();
         if (!empty($validated['gdrive_folder_id'])) {
             $validated['gdrive_folder_id'] = GoogleDriveService::cleanFolderId($validated['gdrive_folder_id']);
@@ -170,6 +179,8 @@ class GalleryController extends Controller
      */
     public function destroy(Gallery $gallery): RedirectResponse
     {
+        $this->authorizeGallery($gallery);
+
         $clientName = $gallery->client_name;
         $gallery->delete();
 
@@ -183,6 +194,8 @@ class GalleryController extends Controller
      */
     public function sync(Gallery $gallery, GoogleDriveService $driveService): RedirectResponse
     {
+        $this->authorizeGallery($gallery);
+
         try {
             $result = $driveService->syncGalleryPhotos($gallery);
 
@@ -201,6 +214,8 @@ class GalleryController extends Controller
      */
     public function reopen(Gallery $gallery): RedirectResponse
     {
+        $this->authorizeGallery($gallery);
+
         $gallery->update([
             'status' => 'open',
         ]);
@@ -215,6 +230,8 @@ class GalleryController extends Controller
      */
     public function complete(Gallery $gallery): RedirectResponse
     {
+        $this->authorizeGallery($gallery);
+
         $gallery->update([
             'status' => 'completed',
         ]);
@@ -222,5 +239,15 @@ class GalleryController extends Controller
         return redirect()
             ->route('admin.galleries.show', $gallery)
             ->with('success', 'Status galeri ditandai sebagai Selesai (Completed).');
+    }
+
+    /**
+     * Ensure the authenticated user owns this gallery.
+     */
+    protected function authorizeGallery(Gallery $gallery): void
+    {
+        if ($gallery->user_id !== null && $gallery->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses ke galeri milik admin lain.');
+        }
     }
 }

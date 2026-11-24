@@ -86,6 +86,10 @@ class GalleryController extends Controller
         $autoSync = $request->boolean('auto_sync');
         unset($validated['auto_sync']);
 
+        if (!empty($validated['gdrive_folder_id'])) {
+            $validated['gdrive_folder_id'] = GoogleDriveService::cleanFolderId($validated['gdrive_folder_id']);
+        }
+
         $gallery = Gallery::create($validated);
 
         if ($autoSync) {
@@ -149,7 +153,12 @@ class GalleryController extends Controller
      */
     public function update(UpdateGalleryRequest $request, Gallery $gallery): RedirectResponse
     {
-        $gallery->update($request->validated());
+        $validated = $request->validated();
+        if (!empty($validated['gdrive_folder_id'])) {
+            $validated['gdrive_folder_id'] = GoogleDriveService::cleanFolderId($validated['gdrive_folder_id']);
+        }
+
+        $gallery->update($validated);
 
         return redirect()
             ->route('admin.galleries.show', $gallery)

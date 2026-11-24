@@ -222,6 +222,28 @@ class GoogleDriveService
     }
 
     /**
+     * Clean and extract raw Google Drive Folder ID from URLs or strings with query params.
+     */
+    public static function cleanFolderId(?string $folderId): string
+    {
+        $raw = trim($folderId ?? '');
+        if (empty($raw)) {
+            return '';
+        }
+
+        // If a full Google Drive URL is passed: extract the ID
+        if (preg_match('#/folders/([a-zA-Z0-9_-]+)#', $raw, $matches)) {
+            return $matches[1];
+        }
+
+        // If string contains query parameters (e.g., ID?usp=sharing), strip them
+        $clean = preg_replace('/\?.*$/', '', $raw);
+        $clean = preg_replace('/&.*$/', '', $clean);
+
+        return trim($clean);
+    }
+
+    /**
      * Sync metadata from a Google Drive folder into the photos table.
      * Handles pagination (nextPageToken) for 500+ photos.
      * Performs idempotent upserts without overwriting client selections or retouching notes.
@@ -233,7 +255,11 @@ class GoogleDriveService
     public function syncGalleryPhotos(Gallery $gallery): array
     {
         $drive = $this->ensureAuthenticated();
-        $folderId = trim($gallery->gdrive_folder_id);
+        $folderId = self::cleanFolderId($gallery->gdrive_folder_id);
+
+        if (empty($folderId)) {
+            throw new InvalidArgumentException("Google Drive Folder ID tidak boleh kosong atau tidak valid.");
+        }
         $pageToken = null;
         $syncedCount = 0;
         $now = now()->toDateTimeString();
@@ -340,7 +366,8 @@ class GoogleDriveService
     {
         try {
             $drive = $this->ensureAuthenticated();
-            $folder = $drive->files->get($folderId, [
+            $cleanId = self::cleanFolderId($folderId);
+            $folder = $drive->files->get($cleanId, [
                 'fields'            => 'id, name, mimeType',
                 'supportsAllDrives' => true,
             ]);
